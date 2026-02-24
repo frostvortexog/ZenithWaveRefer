@@ -107,7 +107,6 @@ button:hover {
   color: #4ade80;
   font-weight: bold;
 }
-
 </style>
 </head>
 
@@ -132,37 +131,53 @@ button:hover {
 const url = new URL(window.location.href);
 const user = url.searchParams.get("user");
 
-function getDevice(){
-  return navigator.userAgent + screen.width + screen.height;
-}
-
 async function verify(){
 
   document.querySelector("button").style.display = "none";
   document.getElementById("loader").style.display = "block";
 
-  let device = btoa(getDevice());
+  let device = btoa(navigator.userAgent + screen.width + screen.height);
 
   try {
-    await fetch("https://zenithwave-refer-1.onrender.com/verify",{
+    let res = await fetch("https://zenithwave-refer-1.onrender.com/verify",{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
+      headers:{
+        "Content-Type":"application/json"
+      },
       body:JSON.stringify({
         user:user,
         device:device
       })
     });
 
-    document.getElementById("loader").style.display = "none";
-    document.getElementById("success").style.display = "block";
+    let text = await res.text();
+    console.log("RAW RESPONSE:", text);
 
-    setTimeout(()=>{
-      window.location.href = "https://t.me/YOUR_BOT";
-    },2000);
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      alert("❌ Server returned invalid response");
+      console.log(text);
+      return;
+    }
+
+    if(data.status === "success"){
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("success").style.display = "block";
+
+      setTimeout(()=>{
+        window.location.href = "https://t.me/ZenithWave_Refer_Bot"; // 🔥 CHANGE THIS
+      },2000);
+
+    } else {
+      alert("❌ " + data.msg);
+      location.reload();
+    }
 
   } catch(e){
-    alert("Error verifying. Try again.");
-    location.reload();
+    alert("❌ Cannot connect to server");
+    console.log(e);
   }
 }
 </script>
