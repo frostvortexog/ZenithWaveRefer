@@ -139,35 +139,30 @@ async function verify(){
   let device = btoa(navigator.userAgent + screen.width + screen.height);
 
   try {
+
+    // 🔥 Wake server
+    await fetch("https://zenithwave-refer-1.onrender.com");
+
+    // wait a bit (IMPORTANT)
+    await new Promise(r => setTimeout(r, 2000));
+
     let res = await fetch("https://zenithwave-refer-1.onrender.com/verify",{
       method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
+      headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
         user:user,
         device:device
       })
     });
 
-    let text = await res.text();
-    console.log("RAW RESPONSE:", text);
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      alert("❌ Server returned invalid response");
-      console.log(text);
-      return;
-    }
+    let data = await res.json();
 
     if(data.status === "success"){
       document.getElementById("loader").style.display = "none";
       document.getElementById("success").style.display = "block";
 
       setTimeout(()=>{
-        window.location.href = "https://t.me/ZenithWave_Refer_Bot"; // 🔥 CHANGE THIS
+        window.location.href = "https://t.me/ZenithWave_Refer_Bot";
       },2000);
 
     } else {
@@ -176,11 +171,7 @@ async function verify(){
     }
 
   } catch(e){
-    alert("❌ Cannot connect to server");
+    alert("⚠️ Server starting... click again in 3 seconds");
     console.log(e);
   }
 }
-</script>
-
-</body>
-</html>
