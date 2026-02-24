@@ -18,10 +18,9 @@ body {
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #0f172a, #1e293b, #020617);
-  overflow: hidden;
 }
 
-/* Glow background */
+/* Glow */
 body::before {
   content: "";
   position: absolute;
@@ -41,22 +40,14 @@ body::before {
   text-align: center;
   width: 320px;
   box-shadow: 0 0 40px rgba(0,0,0,0.6);
-  animation: fadeIn 1s ease;
-}
-
-@keyframes fadeIn {
-  from {opacity:0; transform:translateY(20px);}
-  to {opacity:1; transform:translateY(0);}
 }
 
 h1 {
-  font-size: 22px;
+  color: white;
   margin-bottom: 10px;
-  color: #fff;
 }
 
 p {
-  font-size: 14px;
   color: #94a3b8;
   margin-bottom: 25px;
 }
@@ -93,8 +84,8 @@ button:hover {
   animation: bounce 1s infinite alternate;
 }
 
-.loader div:nth-child(2) { animation-delay: 0.2s; }
-.loader div:nth-child(3) { animation-delay: 0.4s; }
+.loader div:nth-child(2){ animation-delay: 0.2s; }
+.loader div:nth-child(3){ animation-delay: 0.4s; }
 
 @keyframes bounce {
   to { transform: translateY(-10px); }
@@ -131,7 +122,22 @@ button:hover {
 const url = new URL(window.location.href);
 const user = url.searchParams.get("user");
 
+console.log("User ID:", user);
+
+// ❌ If no user → stop
+if(!user){
+  alert("❌ Invalid verification link");
+}
+
+// 🔥 MAIN FUNCTION
 async function verify(){
+
+  console.log("Verify clicked");
+
+  if(!user){
+    alert("❌ Missing user ID");
+    return;
+  }
 
   document.querySelector("button").style.display = "none";
   document.getElementById("loader").style.display = "block";
@@ -140,15 +146,15 @@ async function verify(){
 
   try {
 
-    // 🔥 Wake server
+    // 🔥 Wake Render server
     await fetch("https://zenithwave-refer-1.onrender.com");
-
-    // wait a bit (IMPORTANT)
     await new Promise(r => setTimeout(r, 2000));
 
     let res = await fetch("https://zenithwave-refer-1.onrender.com/verify",{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
+      headers:{
+        "Content-Type":"application/json"
+      },
       body:JSON.stringify({
         user:user,
         device:device
@@ -157,12 +163,15 @@ async function verify(){
 
     let data = await res.json();
 
+    console.log("Server response:", data);
+
     if(data.status === "success"){
+
       document.getElementById("loader").style.display = "none";
       document.getElementById("success").style.display = "block";
 
       setTimeout(()=>{
-        window.location.href = "https://t.me/ZenithWave_Refer_Bot";
+        window.location.href = "https://t.me/YOUR_BOT"; // 🔥 CHANGE THIS
       },2000);
 
     } else {
@@ -171,7 +180,12 @@ async function verify(){
     }
 
   } catch(e){
-    alert("⚠️ Server starting... click again in 3 seconds");
-    console.log(e);
+    console.log("ERROR:", e);
+    alert("⚠️ Server is waking up, try again in 3 seconds");
+    location.reload();
   }
 }
+</script>
+
+</body>
+</html>
